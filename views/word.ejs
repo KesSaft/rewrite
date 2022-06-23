@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include("header") %>
+
+    <meta
+      name="description"
+      content="Do you need the description, German translation, type, meaning and an example of a English word? Then this is the right for YOU!"
+    />
+    <meta property="og:title" content="Word details | Rewriter" />
+    <meta
+      property="og:description"
+      content="Do you need the description, German translation, type, meaning and an example of a English word? Then this is the right for YOU!"
+    />
+
+    <title>Word details | Rewriter</title>
+  </head>
+  <body>
+    <%- include("navbar") %>
+    <div class="container mt-5">
+      <div class="form-group mb-3 mt-2">
+        <label for="wordinput">Word</label>
+        <input
+          required
+          id="wordinput"
+          type="text"
+          class="form-control"
+          autocomplete="off"
+          placeholder="English word ..."
+          pattern="^\S+$"
+          onkeypress="if(event.keyCode == 13) getDetails()"
+        />
+        <div id="textExample1" class="form-text">
+          Make sure to enter an existing word!
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="getDetails()">Send</button>
+      <div class="mt-5" id="output" hidden>
+        <b id="word" class="h4"></b> --> <span id="german"></span>
+        <br class="my-1" />
+        <small id="type" class="text-muted"></small>
+        <br class="my-1" />
+        <i class="h6" id="meaning"></i>
+        <br class="my-2" />
+        <span class="h6" id="example"></span>
+      </div>
+    </div>
+    <script>
+      function getDetails() {
+        if (document.getElementById("wordinput").readonly) return;
+
+        document.getElementById("wordinput").readonly = true;
+
+        if (!document.getElementById("wordinput").value.trim())
+          return alert("Type a word in!");
+
+        if (/\s/g.test(document.getElementById("wordinput").value.trim()))
+          return alert("Just one word please!");
+
+        const output = document.getElementById("output");
+
+        fetch("/word", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            word: document.getElementById("wordinput").value.trim(),
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            document.getElementById("wordinput").readonly = false;
+            if (data.error) return alert(data.error);
+
+            output.querySelector("#word").innerText = data.word;
+            output.querySelector("#german").innerText = data.german;
+            output.querySelector("#type").innerText = data.type;
+            output.querySelector("#meaning").innerText = data.meaning;
+            output.querySelector("#example").innerText = data.examples[1];
+            output.hidden = false;
+          });
+
+        document.getElementById("wordinput").value = "";
+      }
+    </script>
+  </body>
+</html>

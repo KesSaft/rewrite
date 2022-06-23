@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include("header") %>
+
+    <meta
+      name="description"
+      content="Do you need to write a Text in your own Words? Then this Website is for you! Just copy and past the text in, and there you have it!"
+    />
+    <meta property="og:title" content="Rewriter" />
+    <meta
+      property="og:description"
+      content="Do you need to write a Text in your own Words? Then this Website is for you! Just copy and past the text in, and there you have it!"
+    />
+
+    <title>Rewriter</title>
+  </head>
+  <body>
+    <%- include("navbar") %>
+    <div class="container mt-5">
+      <div class="row">
+        <div class="col form-floating">
+          <textarea
+            class="form-control shadow"
+            placeholder="Leave a comment here"
+            id="floatingTextarea1"
+            style="height: 400px"
+            name="text"
+          ></textarea>
+          <label for="floatingTextarea2" class="mx-3">Your Text</label>
+        </div>
+        <div class="col form-floating">
+          <textarea
+            class="form-control shadow"
+            placeholder="Leave a comment here"
+            id="floatingTextarea2"
+            style="height: 400px"
+            readonly
+          ></textarea>
+          <label for="floatingTextarea2" class="mx-3">Rewritten Text</label>
+        </div>
+      </div>
+      <div class="text-center mt-3">
+        <div
+          class="btn-group"
+          role="group"
+          aria-label="Basic radio toggle button group"
+        >
+          <input
+            type="radio"
+            class="btn-check"
+            name="btnradio"
+            id="btnradio1"
+            autocomplete="off"
+            checked
+          />
+          <label
+            class="btn btn-outline-warning"
+            for="btnradio1"
+            tabindex="0"
+            data-bs-toggle="popover"
+            data-bs-trigger="hover focus"
+            data-bs-content="FAST & BEST"
+            data-bs-placement="left"
+            >Simple</label
+          >
+
+          <input
+            type="radio"
+            class="btn-check"
+            name="btnradio"
+            id="btnradio2"
+            autocomplete="off"
+          />
+          <label class="btn btn-outline-success" for="btnradio2">Medium</label>
+
+          <input
+            type="radio"
+            class="btn-check"
+            name="btnradio"
+            id="btnradio3"
+            autocomplete="off"
+          />
+          <label
+            class="btn btn-outline-danger"
+            for="btnradio3"
+            tabindex="0"
+            data-bs-toggle="popover"
+            data-bs-trigger="hover focus"
+            data-bs-content="takes long!"
+            data-bs-placement="right"
+            >Strong</label
+          >
+        </div>
+        <div class="text-center mt-3">
+          <button id="submit" class="btn btn-info" onclick="rewrite()">
+            Rewrite
+          </button>
+          <br />
+          <span class="mt-1">This can take a few Seconds ...</span>
+          <br />
+          <div class="spinner-border mt-2 text-danger" hidden role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      function rewrite() {
+        document.querySelector("div.spinner-border").hidden = false;
+        document.querySelector("button#submit").disabled = true;
+        document.getElementById("floatingTextarea2").value = "";
+        fetch("/rewrite", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text: document.getElementById("floatingTextarea1").value,
+            strength: document.querySelector("input[name=btnradio]:checked")
+              .nextElementSibling.innerText,
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            document.getElementById("floatingTextarea2").value = data.rewritten;
+            document.querySelector("div.spinner-border").hidden = true;
+            document.querySelector("button#submit").disabled = false;
+          });
+      }
+
+      var popoverTriggerList = [].slice.call(
+        document.querySelectorAll('[data-bs-toggle="popover"]')
+      );
+      var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+        return new bootstrap.Popover(popoverTriggerEl);
+      });
+    </script>
+  </body>
+</html>
